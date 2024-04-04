@@ -84,6 +84,8 @@ export const GetVandorById = async (
     }
     return res.json({ message: `Vandor not found with id ${vandorId}` });
   } catch (error) {
-    res.status(501).json({ message: "Internal error accured" });
+    res
+      .status(501)
+      .json({ message: "Internal error accured", error: error?.message });
   }
 };
