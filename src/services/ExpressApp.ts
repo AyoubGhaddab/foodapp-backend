@@ -5,10 +5,8 @@ import {
   ShoppingRoute,
   CustomerRoute,
 } from "../routes";
-import { config } from "dotenv";
+require("dotenv").config();
 import path from "path";
-
-config();
 
 export default async (app: Application) => {
   app.use(express.json());
