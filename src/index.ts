@@ -9,7 +9,7 @@ const StartServer = async () => {
   await App(app);
 
   app.listen(PORT, () => {
-    console.log(`App is listining to the port ${PORT}`);
+    console.log(`App is listining to the port o Heroku Server ${PORT}`);
   });
 };
 

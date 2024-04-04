@@ -2,7 +2,8 @@ import bcrypt from "bcrypt";
 import jwt, { sign } from "jsonwebtoken";
 import { VandorPayload, AuthPayload } from "../dto";
 import { Request } from "express";
-const JWT_SECRET = "rupaulsdragracemarinaisqueennottia";
+import { JWT_SECRET } from "../config";
+
 export const GenerateSalt = async () => {
   return await bcrypt.genSalt();
 };
