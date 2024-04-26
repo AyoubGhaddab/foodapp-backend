@@ -12,15 +12,8 @@ export const GenerateOtp = () => {
 };
 
 export const onRequestOTP = async (otp: number, to: string) => {
-  const accountSid = process.env.ACCOUNT_SID;
-  const authToken = process.env.AUTH_TOKEN;
-  const client = require("twilio")(accountSid, authToken);
-  const response = await client.messages.create({
-    body: `Welcome to AyouFood!, Your OTP is ${otp}`,
-    from: "+18134384572",
-    to: `+33${to}`,
-  });
-  return response;
+  // TODO : implement OTP Request
+  return true;
 };
 
 // Payment notification or emails
