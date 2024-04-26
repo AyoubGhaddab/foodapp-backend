@@ -14,6 +14,8 @@ export interface VandorDoc extends Document {
   coverImages: [string];
   rating: number;
   foods: any;
+  lat: number;
+  lng: number;
 }
 
 const VandorSchema = new Schema(
@@ -30,6 +32,8 @@ const VandorSchema = new Schema(
     serviceAvailble: { type: Boolean },
     coverImages: { type: [String] },
     rating: { type: Number },
+    lat: { type: Number },
+    lng: { type: Number },
     foods: [
       {
         type: mongoose.SchemaTypes.ObjectId,

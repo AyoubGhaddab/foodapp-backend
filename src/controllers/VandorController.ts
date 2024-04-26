@@ -4,12 +4,13 @@ import express, {
   NextFunction,
   ErrorRequestHandler,
 } from "express";
-import { EditVandorInputs, VandorLoginInputs } from "../dto";
+import { CreateOfferInputs, EditVandorInputs, VandorLoginInputs } from "../dto";
 import { FindVandor } from "./AdminController";
 import bcrypt from "bcrypt";
 import { GenerateSignature, ValidatePassword } from "../utility";
 import { CreateFootInputs } from "../dto/Food.dto";
-import { Food } from "../models/Food";
+import { Food, Offer, Order } from "../models";
+
 export const VandorLogin = async (
   req: Request,
   res: Response,
@@ -119,10 +120,15 @@ export const UpdateVandorService = async (
 ) => {
   try {
     const user = req.user;
+    const { lat, lng } = req.body;
     if (user) {
       const existingVandor = await FindVandor(user._id);
       if (existingVandor !== null) {
         existingVandor.serviceAvailble = !existingVandor.serviceAvailble;
+        if (lat && lng) {
+          existingVandor.lat = lat;
+          existingVandor.lng = lng;
+        }
         const savedResult = await existingVandor.save();
         return res.json(savedResult);
       }
@@ -187,4 +193,190 @@ export const GetFoods = async (
   } catch (error) {
     res.json({ message: "Internal server error" });
   }
+};
+
+export const GetCurrentOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = req.user;
+
+  if (user) {
+    const orders = await Order.find({ vandorId: user._id }).populate(
+      "items.food"
+    );
+
+    if (orders != null) {
+      return res.status(200).json(orders);
+    }
+  }
+
+  return res.json({ message: "Orders Not found" });
+};
+export const GetOrderDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const orderId = req.params.id;
+
+  if (orderId) {
+    const order = await Order.findById(orderId).populate("items.food");
+
+    if (order != null) {
+      return res.status(200).json(order);
+    }
+  }
+
+  return res.json({ message: "Order Not found" });
+};
+export const ProcessOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const orderId = req.params.id;
+
+  const { status, remarks, time } = req.body;
+
+  if (orderId) {
+    const order = await Order.findById(orderId).populate("items.food");
+
+    order.orderStatus = status; // WAITING // FAILED // ACCEPT // REJECT // UNDER-PROCESS // READY // DELIVERD
+    order.remarks = remarks;
+    if (time) {
+      order.readyTime = time;
+    }
+
+    const orderResult = await order.save();
+
+    if (orderResult != null) {
+      return res.status(200).json(orderResult);
+    }
+  }
+
+  return res.json({ message: "Unable to process order" });
+};
+
+export const GetOffers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = req.user;
+
+  if (user) {
+    const offers = await Offer.find({
+      $or: [{ vandors: user._id }, { offerType: "GENERIC" }],
+    });
+
+    return res.status(200).json(offers);
+  }
+
+  return res.json({ message: "Offers Not available" });
+};
+export const AddOffer = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = req.user;
+  if (user) {
+    const {
+      offerType,
+      title,
+      description,
+      minValue,
+      offerAmount,
+      startValidity,
+      endValidity,
+      promocode,
+      promoType,
+      bank,
+      bins,
+      pincode,
+      isActive,
+    } = <CreateOfferInputs>req.body;
+    const vandor = await FindVandor(user._id);
+    if (vandor) {
+      const offer = await Offer.create({
+        offerType,
+        vandors: [vandor],
+        title,
+        description,
+        minValue,
+        offerAmount,
+        startValidity,
+        endValidity,
+        promocode,
+        promoType,
+        bank,
+        bins,
+        pincode,
+        isActive,
+      });
+      return res.status(200).json(offer);
+    }
+  }
+  return res.json({ message: "Unable to Add Offer" });
+};
+export const EditOffer = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = req.user;
+  const offerId = req.params.id;
+
+  if (user) {
+    const {
+      title,
+      description,
+      offerType,
+      offerAmount,
+      pincode,
+      promocode,
+      promoType,
+      startValidity,
+      endValidity,
+      bank,
+      bins,
+      minValue,
+      isActive,
+    } = <CreateOfferInputs>req.body;
+
+    const currentOffer = await Offer.findById(offerId);
+
+    if (currentOffer) {
+      const vendor = await FindVandor(user._id);
+
+      if (vendor) {
+        (currentOffer.title = title),
+          (currentOffer.description = description),
+          (currentOffer.offerType = offerType),
+          (currentOffer.offerAmount = offerAmount),
+          (currentOffer.pincode = pincode),
+          (currentOffer.promoType = promoType),
+          (currentOffer.startValidity = startValidity),
+          (currentOffer.endValidity = endValidity),
+          (currentOffer.bank = bank),
+          (currentOffer.isActive = isActive),
+          (currentOffer.minValue = minValue);
+
+        const result = await currentOffer.save();
+
+        return res.status(200).json(result);
+      }
+    }
+  }
+
+  return res.json({ message: "Unable to add Offer!" });
+};
+export const DeleteOffer = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  return res.json({ message: "Unable to process order" });
 };

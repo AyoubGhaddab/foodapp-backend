@@ -27,3 +27,19 @@ export interface EditVandorInputs {
   address: string;
   serviceAvailble: boolean;
 }
+export interface CreateOfferInputs {
+  offerType: string; // VENDOR // GENERIC
+  vandors: [any]; // ['876689bdyuzbydz']
+  title: string; // -10euro on weekend
+  description: string; // any description
+  minValue: number; // minumum order amount
+  offerAmount: number; // 10
+  startValidity: Date; // today
+  endValidity: Date; // 02/06/2024
+  promocode: string; // WEEKMIN10
+  promoType: string; // USER // ALL // BANK // CARD
+  bank: [any];
+  bins: [any];
+  pincode: string; // area availabke
+  isActive: boolean; //
+}

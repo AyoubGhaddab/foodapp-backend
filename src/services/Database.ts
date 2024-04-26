@@ -1,18 +1,9 @@
-import { ConnectOptions, connect } from "mongoose";
-import { config } from "dotenv";
-config();
+import { connect } from "mongoose";
+
 import { MONGO_URI } from "../config";
 export default async () => {
   try {
-    type ConnectionOptionsExtend = {
-      useNewUrlParser: boolean;
-      useUnifiedTopology: boolean;
-    };
-    const options: ConnectOptions & ConnectionOptionsExtend = {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    };
-    connect(MONGO_URI, options)
+    connect(MONGO_URI)
       .then((result) => {
         console.log("DB connected");
       })

@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import { CreateVandorInput } from "../dto";
 
 import { GeneratePassword, GenerateSalt } from "../utility";
-import { FoodDoc, Vandor } from "../models";
+import { FoodDoc, Offer, Vandor } from "../models";
 
 export const GetFoodAvailability = async (
   req: Request,
@@ -109,4 +109,17 @@ export const RestaurantById = async (
 
     return res.status(400).json({ message: "Food information not found" });
   } catch (error) {}
+};
+
+export const GetAvailableOffers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { pincode } = req.params;
+  const offers = await Offer.find({ pincode, isActive: true });
+  if (offers.length) {
+    return res.status(200).json(offers);
+  }
+  return res.status(400).json({ message: "Offers Not found" });
 };

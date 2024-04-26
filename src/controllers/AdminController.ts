@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import { CreateVandorInput } from "../dto";
 import { Vandor } from "../models/Vandor";
 import { GeneratePassword, GenerateSalt } from "../utility";
+import { Transaction } from "../models";
 
 export const FindVandor = async (id: string | undefined, email?: string) => {
   if (email) {
@@ -50,6 +51,8 @@ export const CreateVandor = async (
       coverImages: [],
       foods: [],
       rating: 0,
+      lat: 0,
+      lng: 0,
     });
 
     return res.json(createdVandor);
@@ -88,4 +91,33 @@ export const GetVandorById = async (
       .status(501)
       .json({ message: "Internal error accured", error: error?.message });
   }
+};
+export const GetTransactions = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const transactions = await Transaction.find();
+
+  if (transactions) {
+    return res.status(200).json(transactions);
+  }
+
+  return res.json({ message: "Transactions data not available" });
+};
+
+export const GetTransactionById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const id = req.params.id;
+
+  const transaction = await Transaction.findById(id);
+
+  if (transaction) {
+    return res.status(200).json(transaction);
+  }
+
+  return res.json({ message: "Transaction data not available" });
 };
